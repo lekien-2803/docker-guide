@@ -278,4 +278,108 @@ docker-compose up -d
 
 Bây giờ kết nối với database bằng các công cụ quản lý database như MySQL Work Bench, DBeaver, v.v... và kết nối với database, tạo schemas, tạo bảng, tất cả đều được lưu vào thư mục `mysql_data` trên desktop.
 
+## 5. Tạo container Postgresql database
+### 5.1. Tạo Postgresql database hệ điều hành Alpine lắng nghe ở cổng mặc định
+
+Đầu tiên ta tạo file `docker-compose.yml` như sau:
+
+```
+version: '3.8'
+services:
+  postgres:
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: abc123- 
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+```
+
+Tiếp theo ta khởi chạy container:
+
+```
+docker-compose up -d
+```
+
+### 5.2: Tạo Postgresql cùng phần mềm quản lý Adminer, password root là ‘abc123-’
+
+File `docker-compose.yml` của ta sẽ như sau:
+
+```
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: root # Đặt username là root
+      POSTGRES_PASSWORD: abc123- # Đặt password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
+```
+
+Tiếp theo ta khởi chạy container:
+
+```
+docker-compose up -d
+```
+
+Sau đó ta vào đường dẫn `http://localhost:8080` và đăng nhập vào postgres với thông tin như sau:
+    System: PostgreSQL
+    Server: postgres (Tên dịch vụ PostgreSQL trong docker-compose.yml)
+    Username: root
+    Password: abc123-
+
+### 5.3: Tạo Postgresql cùng phần mềm quản lý Adminer, password root là ‘abc123-’, thư mục data tham chiếu vào thư mục trên desk top của bạn.
+
+Tạo file `docker-compose.yml` như sau:
+
+```
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: root 
+      POSTGRES_PASSWORD: abc123- 
+    ports:
+      - "5432:5432"
+    volumes:
+      - /path/to/your/desktop/postgres_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
+```
+
+Thay thế /path/to/your/desktop/postgres_data bằng đường dẫn thực tế đến thư mục postgres_data mà bạn đã tạo trên desktop của mình.
+
+Khởi chạy container:
+```
+docker-compose up -d
+```
+
+Sau khi các container đã chạy, ta có thể truy cập Adminer bằng cách mở trình duyệt và điều hướng đến `http://localhost:8080`. Từ đó có thể đăng nhập vào PostgreSQL sử dụng thông tin sau:
+
+    System: PostgreSQL
+    Server: postgres (Tên dịch vụ PostgreSQL trong docker-compose.yml)
+    Username: root
+    Password: abc123-
 
