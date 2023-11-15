@@ -575,5 +575,107 @@ Mở terminal lên tại thư mục chứa `docker-compose.yml` và `init-data.s
 docker-compose up -d
 ```
 
-Mở các công cụ quản lý database lên và kiểm tra xem đã có dữ liệu hay chưa.
+Mở các công cụ quản lý database lên và kiểm tra xem, ta sẽ thấy các bảng đã có dữ liệu ở trong database tên là `demo`.
 
+## 3. Tạo Docker Image dự án bài số 2, sau đó thêm vào một ứng dụng Golang APP truy vấn bảng people bằng câu lệnh SELECT * FROM people rồi trả về JSON ở cổng 8080.
+
+Ta đã có image ở bài số 2, công việc bây giờ là tạo ra một app Golang có thể truy vấn vào bảng `people` và trả về dữ liệu JSON.
+
+Đầu tiên thì trong app Golang đó ta cần có một struct `Person` có các trường dữ liệu tương ứng với các cột trong bảng `people` bao gồm: `ID`, `FirstName`, `LastName`, `Gender`, `DateOfBirth`.
+
+Tiếp theo ta sẽ kết nối với `postgres`, lấy dữ liệu với câu truy vấn:
+```sql
+SELECT * FROM people
+```
+
+Trả về dữ liệu dạng JSON tại api `/people`
+
+Vì là app Golang đơn giản, nên ta có thể để luôn phần struct này trong file `main.go` như sau:
+
+```go
+package main
+
+import (
+    "database/sql"
+    "encoding/json"
+    "log"
+    "net/http"
+
+    _ "github.com/lib/pq"
+)
+
+type Person struct {
+    ID         int    `json:"id"`
+    FirstName  string `json:"first_name"`
+    LastName   string `json:"last_name"`
+    Gender     string `json:"gender"`
+    DateOfBirth string `json:"date_of_birth"`
+}
+
+func main() {
+    connStr := "postgres://postgres:abc123-@postgres:5432/demo?sslmode=disable"
+    db, err := sql.Open("postgres", connStr)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    http.HandleFunc("/people", func(w http.ResponseWriter, r *http.Request) {
+        rows, err := db.Query("SELECT * FROM people")
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+        defer rows.Close()
+
+        var people []Person
+        for rows.Next() {
+            var p Person
+            if err := rows.Scan(&p.ID, &p.FirstName, &p.LastName, &p.Gender, &p.DateOfBirth); err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+            }
+            people = append(people, p)
+        }
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(people)
+    })
+
+    log.Fatal(http.ListenAndServe(":8080", nil))
+}
+```
+
+Tiếp theo ta tạo file `Dockerfile`:
+```dockerfile
+FROM golang:alpine
+
+WORKDIR /app
+
+COPY . .
+
+RUN go build -o main .
+
+CMD ["/app/main"]
+```
+
+Sửa lại file `docker-compose.yml` ở trên:
+```yaml
+version: '3.8'
+services:
+  postgres:
+    # Cấu hình postgres giống như trước
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+```
+
+Giờ ta chạy lệnh:
+```bash
+docker-compose up --build
+```
+
+Mở trình duyệt lên và vào đường dẫn `http://localhost:8080/people`, ta sẽ thấy dữ liệu được hiển thị dưới dạng JSON.
