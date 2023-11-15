@@ -1,13 +1,16 @@
-# Bài tập docker
+# 1. Khởi động 1 container
 ## 2. Hello World với Docker: Chạy một container Docker đơn giản chứa ứng dụng “Hello World”.
 
 Tạo một folder tên "hello-world", trong folder mở terminal lên và chạy câu lệnh:
 
-`go mod init hello-world`
+```go
+go mod init hello-world
+```
 
 Tiếp theo tạo file `main.go`, nội dung trong file này:
 
-```package main
+```go
+package main
 
 import "fmt"
 
@@ -18,7 +21,8 @@ func main() {
 
 Tạo một file tên là `Dockerfile` (hãy nhớ file này không có tên mở rộng), nội dung của file này như sau:
 
-```# Sử dụng một hình ảnh chứa Go để xây dựng ứng dụng
+```dockerfile
+# Sử dụng một hình ảnh chứa Go để xây dựng ứng dụng
 FROM golang:latest
 
 # Sao chép mã nguồn của bạn vào container
@@ -32,7 +36,6 @@ RUN go build -o main .
 
 # Chạy ứng dụng khi container được khởi chạy
 CMD ["./main"]
-
 ```
 
 
@@ -53,7 +56,7 @@ docker run hello-golang-app
 
 Đầu tiên tạo một file `index.html` với nội dung sau:
 
-```
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -66,7 +69,7 @@ docker run hello-golang-app
 ```
 
 Tiếp theo ta tạo một file nginx config tên là `nginx.conf` với nội dung:
-```
+```bash
 worker_processes 1;
 
 events {
@@ -87,7 +90,7 @@ http {
 ```
 
 Cuối cùng ta tạo `Dockerfile` với nội dung:
-```
+```dockerfile
 # Sử dụng hình ảnh Alpine Linux như hệ điều hành cơ sở
 FROM alpine:latest
 
@@ -123,7 +126,7 @@ docker run -d -p 8080:8080 nginx-alpine
 ### 3.2. Tạo web server sử dụng nginx hệ điều hành Alpine lắng nghe ở cổng 9000, thư mục web gốc nginx sẽ tham chiếu (mapping volume) vào thư mục trên desk top của bạn chứa một file index.html. Nội dung file index.html in ra dòng chữ “Nginx Docker”
 
 Chuẩn bị `Dockerfile`:
-```
+```dockerfile
 # Sử dụng Alpine làm base image
 FROM alpine:latest
 
@@ -145,7 +148,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 Tạo file `index.html`:
 
-```
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -158,7 +161,7 @@ Tạo file `index.html`:
 ```
 
 Tạo file `docker-compose.yml`:
-```
+```dockerfile
 version: '3.8'
 services:
   web:
@@ -186,7 +189,7 @@ docker-compose up -d
 ### 4.1. Tạo MySQL lắng nghe ở cổng 3000, có password root là ‘abc123-’
 
 Tạo file `docker-compose.yml` như sau:
-```
+```dockerfile
 version: '3.8'
 services:
   mysql:
@@ -217,7 +220,7 @@ Sau khi container đã chạy, kết nối đến mysql database bằng công c�
 ### 4.2.Tạo MySQL lắng nghe ở cổng mặc định, có password root là ‘abc123-’, có thêm công cụ quản trị adminer
 
 Tạo file `docker-compose.yml`:
-```
+```dockerfile
 version: '3.8'
 services:
   mysql:
@@ -255,7 +258,7 @@ Sau khi khởi chạy xong, vào trình duyệt web truy cập đường dẫn `
 Trước hết, hãy tạo một thư mục trên desktop của bạn để lưu trữ dữ liệu MySQL. Giả sử bạn tạo một thư mục có tên là `mysql_data` trên desktop.
 
 Tạo File `docker-compose.yml`:
-```
+```dockerfile
 version: '3.8'
 services:
   mysql:
@@ -283,7 +286,7 @@ Bây giờ kết nối với database bằng các công cụ quản lý database
 
 Đầu tiên ta tạo file `docker-compose.yml` như sau:
 
-```
+```dockerfile
 version: '3.8'
 services:
   postgres:
@@ -309,7 +312,7 @@ docker-compose up -d
 
 File `docker-compose.yml` của ta sẽ như sau:
 
-```
+```dockerfile
 version: '3.8'
 services:
   postgres:
@@ -347,7 +350,7 @@ Sau đó ta vào đường dẫn `http://localhost:8080` và đăng nhập vào 
 
 Tạo file `docker-compose.yml` như sau:
 
-```
+```dockerfile
 version: '3.8'
 services:
   postgres:
@@ -382,4 +385,99 @@ Sau khi các container đã chạy, ta có thể truy cập Adminer bằng cách
     Server: postgres (Tên dịch vụ PostgreSQL trong docker-compose.yml)
     Username: root
     Password: abc123-
+
+## 6. Tạo Docker image
+### 6.1. Tạo Docker image của một ứng dụng Golang trả về REST API đơn giản ở cổng 8080.
+
+Tôi có một ứng dụng đơn giản là một trang web sách (book-store) tại repo:
+
+```bash
+git clone https://github.com/lekien-2803/book-store.git
+```
+
+Sau khi clone về, cây thư mục của chúng ta có dạng:
+```bash
+│   go.mod
+│   go.sum
+│   main.go
+│
+├───.idea
+│       .gitignore
+│       book-management-app.iml
+│       modules.xml
+│       vcs.xml
+│
+├───controller
+│       book_controller.go
+│
+├───database
+│       book_database.go
+│
+├───model
+│   │   book_model.go
+│   │
+│   ├───request
+│   │       book_request.go
+│   │
+│   └───response
+│           response.go
+│
+├───repository
+│       book_repository.go
+│
+├───resources
+│   ├───static
+│   │   └───lib
+│   │       └───bootstrap
+│   │               bootstrap.bundle.min.js
+│   │               bootstrap.min.css
+│   │
+│   └───views
+│           create.html
+│           detail.html
+│           index.html
+│
+├───rest
+│       book_rest.go
+│
+├───router
+│       book_router.go
+│
+└───service
+        book_service.go
+```
+
+Ta sẽ di chuyển con trỏ ra folder `book-store`, nơi có file `main.go` để tạo file `Dockerfile`:
+
+```dockerfile
+# Sử dụng base image Golang từ Docker Hub
+FROM golang:alpine
+
+# Thiết lập /app làm thư mục làm việc
+WORKDIR /app
+
+# Copy tất cả file trong thư mục hiện tại vào /app trong container
+COPY . .
+
+# Build ứng dụng Golang
+RUN go build -o main .
+
+# Chạy ứng dụng khi container khởi động
+CMD ["/app/main"]
+```
+
+Tạo xong `Dockerfile` thì ta build docker image với câu lệnh:
+```
+docker build -t book-store .
+```
+
+Trong đó, `book-store` là tên mà bạn muốn đặt cho Docker image.
+
+Sau khi image đã được build, bạn có thể chạy một container sử dụng image này:
+* Sử dụng lệnh:
+```
+docker run -p 8080:8080 book-store
+```
+
+### 6.2. Tạo Docker image một ứng dụng Golang trên nền của Docker image Postgresql, ứng dụng Golang truy vấn vào Postgresql và trả về JSON của bảng People
 
