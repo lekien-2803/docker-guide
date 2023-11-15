@@ -41,13 +41,13 @@ CMD ["./main"]
 
 Sau khi có 3 file như trên, tại thư mục `hello-world`, mở terminal lên và chạy câu lệnh:
 
-```
+```bash
 docker build -t hello-golang-app .
 ```
 
 Sau khi build xong thì ta chạy tiếp câu lệnh:
 
-```
+```bash
 docker run hello-golang-app
 ```
 
@@ -114,12 +114,12 @@ CMD ["nginx", "-g", "daemon off;"]
 ```
 
 Mở terminal lên để build Docker image:
-```
+```bash
 docker build -t nginx-alpine .
 ```
 
 Chạy container này trên cổng 8080:
-```
+```bash
 docker run -d -p 8080:8080 nginx-alpine
 ```
 
@@ -161,7 +161,7 @@ Tạo file `index.html`:
 ```
 
 Tạo file `docker-compose.yml`:
-```dockerfile
+```yaml
 version: '3.8'
 services:
   web:
@@ -176,12 +176,12 @@ services:
 Thay thế `"/path/to/your/desktop/folder"` bằng đường dẫn thực tế đến thư mục trên máy tính của bạn chứa file `index.html`.
 
 Tiếp theo ta build image, mở terminal lên và chạy câu lệnh:
-```
+```bash
 docker-compose build
 ```
 
 Sau khi build xong thì ta chạy container:
-```
+```bash
 docker-compose up -d
 ```
 
@@ -189,7 +189,7 @@ docker-compose up -d
 ### 4.1. Tạo MySQL lắng nghe ở cổng 3000, có password root là ‘abc123-’
 
 Tạo file `docker-compose.yml` như sau:
-```dockerfile
+```yaml
 version: '3.8'
 services:
   mysql:
@@ -206,7 +206,7 @@ volumes:
 ```
 
 Khởi chạy container với câu lệnh:
-```
+```bash
 docker-compose up -d
 ```
 
@@ -220,7 +220,7 @@ Sau khi container đã chạy, kết nối đến mysql database bằng công c�
 ### 4.2.Tạo MySQL lắng nghe ở cổng mặc định, có password root là ‘abc123-’, có thêm công cụ quản trị adminer
 
 Tạo file `docker-compose.yml`:
-```dockerfile
+```yaml
 version: '3.8'
 services:
   mysql:
@@ -242,7 +242,7 @@ volumes:
 ```
 
 Sau đó mở terminal lên và khởi chạy các container:
-```
+```bash
 docker-compose up -d
 ```
 
@@ -258,7 +258,7 @@ Sau khi khởi chạy xong, vào trình duyệt web truy cập đường dẫn `
 Trước hết, hãy tạo một thư mục trên desktop của bạn để lưu trữ dữ liệu MySQL. Giả sử bạn tạo một thư mục có tên là `mysql_data` trên desktop.
 
 Tạo File `docker-compose.yml`:
-```dockerfile
+```yaml
 version: '3.8'
 services:
   mysql:
@@ -275,7 +275,7 @@ Thay thế `"/path/to/your/desktop/mysql_data"` bằng đường dẫn thực t�
 Mở terminal hoặc command prompt và điều hướng đến thư mục chứa file `docker-compose.yml`. 
 
 Khởi chạy Container:
-```
+```bash
 docker-compose up -d
 ```
 
@@ -286,7 +286,7 @@ Bây giờ kết nối với database bằng các công cụ quản lý database
 
 Đầu tiên ta tạo file `docker-compose.yml` như sau:
 
-```dockerfile
+```yaml
 version: '3.8'
 services:
   postgres:
@@ -304,7 +304,7 @@ volumes:
 
 Tiếp theo ta khởi chạy container:
 
-```
+```bash
 docker-compose up -d
 ```
 
@@ -312,7 +312,7 @@ docker-compose up -d
 
 File `docker-compose.yml` của ta sẽ như sau:
 
-```dockerfile
+```yaml
 version: '3.8'
 services:
   postgres:
@@ -336,7 +336,7 @@ volumes:
 
 Tiếp theo ta khởi chạy container:
 
-```
+```bash
 docker-compose up -d
 ```
 
@@ -350,7 +350,7 @@ Sau đó ta vào đường dẫn `http://localhost:8080` và đăng nhập vào 
 
 Tạo file `docker-compose.yml` như sau:
 
-```dockerfile
+```yaml
 version: '3.8'
 services:
   postgres:
@@ -375,7 +375,7 @@ volumes:
 Thay thế /path/to/your/desktop/postgres_data bằng đường dẫn thực tế đến thư mục postgres_data mà bạn đã tạo trên desktop của mình.
 
 Khởi chạy container:
-```
+```bash
 docker-compose up -d
 ```
 
@@ -386,8 +386,8 @@ Sau khi các container đã chạy, ta có thể truy cập Adminer bằng cách
     Username: root
     Password: abc123-
 
-## 6. Tạo Docker image
-### 6.1. Tạo Docker image của một ứng dụng Golang trả về REST API đơn giản ở cổng 8080.
+# 2. Tạo Docker image
+## 1. Tạo Docker image của một ứng dụng Golang trả về REST API đơn giản ở cổng 8080.
 
 Tôi có một ứng dụng đơn giản là một trang web sách (book-store) tại repo:
 
@@ -467,7 +467,7 @@ CMD ["/app/main"]
 ```
 
 Tạo xong `Dockerfile` thì ta build docker image với câu lệnh:
-```
+```bash
 docker build -t book-store .
 ```
 
@@ -475,9 +475,105 @@ Trong đó, `book-store` là tên mà bạn muốn đặt cho Docker image.
 
 Sau khi image đã được build, bạn có thể chạy một container sử dụng image này:
 * Sử dụng lệnh:
-```
+```bash
 docker run -p 8080:8080 book-store
 ```
 
-### 6.2. Tạo Docker image một ứng dụng Golang trên nền của Docker image Postgresql, ứng dụng Golang truy vấn vào Postgresql và trả về JSON của bảng People
+## 2. Tạo Docker image một database Postgresql database, cần thực hiện file SQL lần đầu tiên khi khởi động database
+
+Ta có file sql đặt tên là `init-data.sql` như sau:
+```sql
+-- Create the 'humanresource' database
+CREATE DATABASE humanresource;
+
+-- Create the 'people' table
+CREATE TABLE people (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    gender VARCHAR(10),
+    date_of_birth DATE
+);
+
+-- Create the 'university' table
+CREATE TABLE university (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    location VARCHAR(255)
+);
+
+-- Create the 'department' table
+CREATE TABLE department (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    description TEXT
+);
+
+-- Create the 'salary_history' table
+CREATE TABLE salary_history (
+    id SERIAL PRIMARY KEY,
+    person_id INT,
+    salary DECIMAL(10, 2),
+    effective_date DATE,
+    FOREIGN KEY (person_id) REFERENCES people(id)
+);
+   -- Insert data into the 'people' table
+INSERT INTO people (first_name, last_name, gender, date_of_birth)
+VALUES
+    ('John', 'Doe', 'Male', '1990-01-15'),
+    ('Jane', 'Smith', 'Female', '1985-03-20'),
+    ('Michael', 'Johnson', 'Male', '1995-07-10'),
+    ('Emily', 'Brown', 'Female', '1992-09-25'),
+    ('David', 'Lee', 'Male', '1988-12-05');
+
+-- Insert data into the 'university' table
+INSERT INTO university (name, location)
+VALUES
+    ('University of ABC', 'Cityville'),
+    ('XYZ University', 'Townsville'),
+    ('ABC Institute of Technology', 'Tech City');
+
+-- Insert data into the 'department' table
+INSERT INTO department (name, description)
+VALUES
+    ('Human Resources', 'Manage personnel and hiring'),
+    ('Finance', 'Manage financial transactions'),
+    ('Computer Science', 'Teaching computer science courses');
+
+-- Insert data into the 'salary_history' table
+INSERT INTO salary_history (person_id, salary, effective_date)
+VALUES
+    (1, 55000.00, '2022-01-01'),
+    (2, 60000.00, '2022-01-01'),
+    (3, 58000.00, '2022-01-01'),
+    (4, 62000.00, '2022-01-01'),
+    (5, 53000.00, '2022-01-01');
+```
+
+Tạo file `docker-compose.yml`:
+```yaml
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: abc123-
+      POSTGRES_DB: demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init-data.sql:/docker-entrypoint-initdb.d/init-data.sql
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+```
+
+Mở terminal lên tại thư mục chứa `docker-compose.yml` và `init-data.sql` rồi chạy lệnh:
+```bash
+docker-compose up -d
+```
+
+Mở các công cụ quản lý database lên và kiểm tra xem đã có dữ liệu hay chưa.
 
